@@ -1,0 +1,16 @@
+services:
+
+  auth-service:
+    build: ./auth-service
+    ports:
+      - "127.0.0.1:8000:8000"
+
+  study-plan-service:
+    build: ./study-plan-service
+    ports:
+      - "127.0.0.1:8001:8000"
+
+  progress-service:
+    build: ./progress-service
+    ports:
+      - "127.0.0.1:8002:8000"
