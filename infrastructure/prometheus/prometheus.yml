@@ -10,3 +10,8 @@ scrape_configs:
     metrics_path: /metrics
     static_configs:
       - targets: ["study-plan-service:8000"]
+
+  - job_name: "progress-service"
+    metrics_path: /metrics
+    static_configs:
+      - targets: ["progress-service:8000"]
