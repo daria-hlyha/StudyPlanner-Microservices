@@ -57,6 +57,7 @@ services:
       - rabbitmq_data:/var/lib/rabbitmq
 
 
+
   prometheus:
     image: prom/prometheus:latest
     ports:
@@ -64,6 +65,7 @@ services:
     volumes:
       - ./infrastructure/prometheus/prometheus.yml:/etc/prometheus/prometheus.yml:ro
       - prometheus_data:/prometheus
+
 
 
   grafana:
@@ -75,6 +77,11 @@ services:
       GF_SECURITY_ADMIN_PASSWORD: ${GRAFANA_ADMIN_PASSWORD}
     volumes:
       - grafana_data:/var/lib/grafana
+      - ./infrastructure/grafana/provisioning/datasources:/etc/grafana/provisioning/datasources:ro
+      - ./infrastructure/grafana/provisioning/dashboards:/etc/grafana/provisioning/dashboards:ro
+      - ./infrastructure/grafana/dashboards:/var/lib/grafana/dashboards:ro
+
+
 
 volumes:
   postgres_data:
