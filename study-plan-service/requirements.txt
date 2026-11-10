@@ -1,2 +1,5 @@
 fastapi
 uvicorn
+psycopg[binary]
+pika
+prometheus-fastapi-instrumentator
