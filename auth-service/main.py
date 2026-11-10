@@ -2,15 +2,17 @@
 from sqlalchemy.orm import Session
 from sqlalchemy import text
 from database import get_db
+from prometheus_fastapi_instrumentator import Instrumentator
 
 app = FastAPI(title="Auth Service")
 
-# Старий маршрут залишаємо, щоб знати, що сервіс працює
+# Автоматический экспорт метрик Prometheus
+Instrumentator().instrument(app).expose(app)
+
 @app.get("/")
 def home():
     return {"message": "Auth Service is running"}
 
-# Новий маршрут для перевірки підключення до PostgreSQL
 @app.get("/db-check")
 def db_check(db: Session = Depends(get_db)):
     try:
