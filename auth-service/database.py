@@ -1,18 +1,34 @@
-﻿import os
+﻿
+import os
 from sqlalchemy import create_engine
 from sqlalchemy.orm import declarative_base, sessionmaker
+from sqlalchemy.engine import URL
 
-POSTGRES_USER = os.getenv("POSTGRES_USER", "studyplanner_user")
-POSTGRES_PASSWORD = os.getenv("POSTGRES_PASSWORD", "445566")
-POSTGRES_DB = os.getenv("POSTGRES_DB", "studyplanner")
-POSTGRES_HOST = os.getenv("POSTGRES_HOST", "postgres")
+DB_HOST = os.getenv("DB_HOST", "postgres")
+DB_PORT = os.getenv("DB_PORT", "5432")
+DB_NAME = os.getenv("DB_NAME", "studyplanner")
+DB_USER = os.getenv("DB_USER", "auth_user")
+DB_PASSWORD = os.environ["DB_PASSWORD"]
 
-# Додаємо +psycopg2, щоб SQLAlchemy чітко знала, який драйвер використовувати
-DATABASE_URL = f"postgresql+psycopg2://{POSTGRES_USER}:{POSTGRES_PASSWORD}@{POSTGRES_HOST}:5432/{POSTGRES_DB}"
+DATABASE_URL = URL.create(
+    drivername="postgresql+psycopg2",
+    username=DB_USER,
+    password=DB_PASSWORD,
+    host=DB_HOST,
+    port=int(DB_PORT),
+    database=DB_NAME
+)
 
 engine = create_engine(DATABASE_URL)
-SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
+
+SessionLocal = sessionmaker(
+    autocommit=False,
+    autoflush=False,
+    bind=engine
+)
+
 Base = declarative_base()
+
 
 def get_db():
     db = SessionLocal()

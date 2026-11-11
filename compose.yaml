@@ -1,9 +1,19 @@
 services:
 
+
   auth-service:
     build: ./auth-service
     ports:
       - "127.0.0.1:8000:8000"
+    environment:
+      DB_HOST: postgres
+      DB_PORT: 5432
+      DB_NAME: ${POSTGRES_DB}
+      DB_USER: auth_user
+      DB_PASSWORD: ${AUTH_DB_PASSWORD}
+    depends_on:
+      - postgres
+
 
 
 
