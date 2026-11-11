@@ -29,6 +29,20 @@ services:
     build: ./progress-service
     ports:
       - "127.0.0.1:8002:8000"
+    environment:
+      DB_HOST: postgres
+      DB_PORT: 5432
+      DB_NAME: ${POSTGRES_DB}
+      DB_USER: progress_user
+      DB_PASSWORD: ${PROGRESS_DB_PASSWORD}
+
+      RABBITMQ_HOST: rabbitmq
+      RABBITMQ_PORT: 5672
+      RABBITMQ_USER: ${RABBITMQ_USER}
+      RABBITMQ_PASSWORD: ${RABBITMQ_PASSWORD}
+    depends_on:
+      - postgres
+      - rabbitmq
 
 
 
