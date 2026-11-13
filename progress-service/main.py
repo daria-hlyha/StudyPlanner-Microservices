@@ -3,7 +3,7 @@ from database import get_connection
 from rabbitmq import get_rabbitmq_connection
 from prometheus_fastapi_instrumentator import Instrumentator
 
-app = FastAPI()
+app = FastAPI(title="Study Plan Service")
 
 
 @app.get("/")
