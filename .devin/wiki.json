@@ -1,0 +1,155 @@
+{
+  "repo_notes": [
+    {
+      "content": "StudyPlanner is a microservices-based study and exam planning web application. Analyze the entire repository, including auth-service, study-plan-service, progress-service, frontend, infrastructure, Docker Compose and configuration files. Produce detailed technical documentation in Ukrainian. Explain every important component, its purpose, internal logic, dependencies, data flows, API contracts and source file locations. Prioritize clarity for a university student who must explain the architecture during an oral defense."
+    },
+    {
+      "content": "Base all descriptions on the actual repository. Clearly distinguish implemented functionality, partially implemented functionality and planned architecture. Never invent endpoints, tables, files, integrations or behavior. When information is absent, explicitly say so. Cite relevant source files and explain what evidence supports each architectural statement."
+    },
+    {
+      "content": "Include readable Mermaid diagrams wherever useful: system context, microservice architecture, Docker Compose deployment, component interactions, REST request sequences, RabbitMQ event flows, database ER diagrams and internal service structures. Label nodes and arrows clearly. Explain each diagram in Ukrainian, including the meaning of connections. Show planned components separately from implemented components."
+    },
+    {
+      "content": "For every service document responsibilities, directory structure, important files, FastAPI routes, request and response models, validation, business logic, persistence, error handling, integration points and dependencies, where present. Explain how requests travel from React through APIs to PostgreSQL and how asynchronous events travel through RabbitMQ, where implemented."
+    },
+    {
+      "content": "Document PostgreSQL schemas auth, study_plan and progress where they exist; explain service data ownership, tables, keys, relationships and migrations. Document Docker images, containers, ports, networks, volumes, environment variables, health checks and startup dependencies based on actual configuration. Cover security, testing, monitoring with Prometheus and Grafana, and deployment only to the extent supported by the repository."
+    },
+    {
+      "content": "DIAGRAM READABILITY REQUIREMENTS: Generate all architecture diagrams, deployment diagrams, component diagrams, database diagrams and sequence diagrams in Ukrainian, with clear, descriptive, beginner-friendly labels. Every diagram must be self-explanatory without requiring the reader to search other documentation pages. Never use unexplained technical abbreviations, bare port numbers, generic component names or unlabeled arrows. For every component, display its Ukrainian name, technical name in parentheses when useful, and a short description of its responsibility. For example, label Auth Service as 'Сервіс автентифікації (Auth Service) — реєстрація, вхід та керування доступом'. For Docker port mappings, explicitly explain HOST_PORT:CONTAINER_PORT; for example, '8000:8000 — порт 8000 комп’ютера → порт 8000 контейнера'. For all connections, label the direction, protocol and purpose, such as 'HTTP REST — створення навчального плану' or 'RabbitMQ — передавання події оновлення прогресу'. For databases, describe what data each service owns and stores. For infrastructure, explain the roles of Docker, PostgreSQL, RabbitMQ, Prometheus and Grafana when present. Use Mermaid diagrams with readable layouts, minimal crossing arrows, logical grouping, concise node text and clear arrow directions. Avoid overcrowded diagrams: split complex diagrams into smaller focused diagrams rather than reducing label clarity. Include a short legend directly below every diagram explaining symbols, arrows, ports, protocols and technical terms. Include a concise step-by-step explanation of the information flow after each diagram. Distinguish implemented components from planned components with explicit textual labels such as 'Реалізовано' and 'Заплановано', not color alone. All diagram elements and connections must be grounded in repository source files. Do not invent functionality or infrastructure. Ensure Mermaid syntax is valid and diagrams render correctly."
+    },
+    {
+      "content": "EDUCATIONAL CLARITY: Write all explanations in clear Ukrainian suitable for a beginner studying microservices. Introduce each technical concept with its full name, simple definition, role in StudyPlanner, and practical significance. Explain terminology such as REST API, endpoint, container, image, volume, schema, exchange, queue, routing key, health check, metrics, and dependency. Explain important architectural decisions and why particular technologies are used. Avoid unexplained jargon and unnecessary repetition."
+    },
+    {
+      "content": "CODE TRACEABILITY AND VERIFICATION: For each important technical claim, reference the exact repository file and relevant function, class, configuration key, or endpoint when available. Clearly separate verified source-code facts from architectural proposals. Provide step-by-step execution flows from user action to API processing, database interaction, and response. Include commands for verifying implemented functionality and explain expected results only when supported by the repository. Never invent successful tests or runtime results."
+    },
+    {
+      "content": "CURRENT VS TARGET ARCHITECTURE: Document two clearly separated architectural views: CURRENT IMPLEMENTATION, based strictly on existing repository files, and TARGET ARCHITECTURE, containing proposed future components and integrations. Do not mix planned functionality with implemented functionality on the same diagram without explicit status labels. For proposed architecture, clearly state assumptions and label connections as proposed rather than verified. Explain the difference between current and target architecture."
+    },
+    {
+      "content": "DOCUMENTATION STRUCTURE AND QUALITY: Organize every technical page using a consistent structure: purpose, responsibilities, implementation status, components, detailed explanation, relevant source files, diagrams, data flows, dependencies, verification methods, limitations, and related pages. Prefer precise explanations over generic summaries. Avoid duplicate content across pages and provide cross-references. Ensure diagrams remain readable at normal zoom, use clear Ukrainian labels, include a legend, and explain every important connection. Verify Mermaid syntax and do not present unsupported claims as facts."
+    }
+  ],
+  "pages": [
+    {
+      "title": "Project Overview",
+      "purpose": "Detailed Ukrainian introduction: project goals, users, functional requirements, technology stack, repository map, implemented features and planned features."
+    },
+    {
+      "title": "System Architecture",
+      "purpose": "Explain architectural style, service boundaries, high cohesion, low coupling, dependencies and system context. Include Mermaid architecture and component diagrams.",
+      "parent": "Project Overview"
+    },
+    {
+      "title": "Repository Structure",
+      "purpose": "Explain all major folders, configuration files, source files and their responsibilities with source references.",
+      "parent": "Project Overview"
+    },
+    {
+      "title": "Architecture Diagrams",
+      "purpose": "Provide comprehensive Mermaid diagrams for system context, logical architecture, service interactions, internal components and data flows. Explain all arrows and connections.",
+      "parent": "System Architecture"
+    },
+    {
+      "title": "Auth Service",
+      "purpose": "Detailed analysis of auth-service: structure, routes, authentication, roles, models, validation, persistence, configuration and implemented behavior.",
+      "parent": "System Architecture"
+    },
+    {
+      "title": "Study Plan Service",
+      "purpose": "Detailed analysis of study-plan-service: study plans, sessions, schedules, deadlines, exams, assignments, activity types, CRUD, API, business logic, models and persistence. Distinguish implemented and planned features.",
+      "parent": "System Architecture"
+    },
+    {
+      "title": "Progress Service",
+      "purpose": "Detailed analysis of progress-service: tasks, statuses, goals, modules, progress calculation, routes, models and data flows, as supported by code.",
+      "parent": "System Architecture"
+    },
+    {
+      "title": "Frontend",
+      "purpose": "Explain React application structure, components, routing, state, forms, API integration and user flows where implemented.",
+      "parent": "System Architecture"
+    },
+    {
+      "title": "REST API Reference",
+      "purpose": "Inventory actual endpoints with HTTP methods, paths, inputs, outputs, validation, status codes and source locations. Do not invent endpoints.",
+      "parent": "System Architecture"
+    },
+    {
+      "title": "Component Interactions",
+      "purpose": "Explain synchronous REST and asynchronous event interactions. Include Mermaid sequence diagrams for authentication, plan creation and progress updates when supported by code.",
+      "parent": "System Architecture"
+    },
+    {
+      "title": "RabbitMQ Messaging",
+      "purpose": "Document implemented exchanges, queues, routing keys, publishers, consumers, event payloads and error handling. Identify planned messaging separately.",
+      "parent": "Component Interactions"
+    },
+    {
+      "title": "Database Architecture",
+      "purpose": "Explain PostgreSQL architecture, service-owned schemas, data ownership, relationships and data access. Include Mermaid ER diagrams grounded in actual models.",
+      "parent": "System Architecture"
+    },
+    {
+      "title": "Database Schema Details",
+      "purpose": "List actual schemas, tables, columns, data types, primary keys, foreign keys, constraints and migrations, with references. Clearly identify missing schema definitions.",
+      "parent": "Database Architecture"
+    },
+    {
+      "title": "Docker Compose Deployment",
+      "purpose": "Explain the actual compose.yaml, Dockerfiles, images, containers, ports, networks, volumes, environment variables and dependencies. Include a readable Mermaid deployment diagram.",
+      "parent": "System Architecture",
+      "page_notes": [
+        {
+          "content": "The deployment diagram must be understandable without external explanations. For every container show its Ukrainian name, purpose and relevant ports. Explain host-to-container port mappings explicitly, distinguish published ports from Docker-internal connections, and label protocols and communication directions. Explain Docker networks, volumes, dependencies and service startup sequence. Use only values verified in compose.yaml and other repository files. Include a legend and a step-by-step walkthrough of the diagram."
+        }
+      ]
+    },
+    {
+      "title": "Infrastructure and Configuration",
+      "purpose": "Document infrastructure folder, configuration, environment variables, startup commands, local development and troubleshooting based on repository files.",
+      "parent": "Docker Compose Deployment"
+    },
+    {
+      "title": "Monitoring and Observability",
+      "purpose": "Document actual Prometheus metrics, Grafana dashboards, logging and health endpoints. Explain planned monitoring separately.",
+      "parent": "Docker Compose Deployment"
+    },
+    {
+      "title": "Security Architecture",
+      "purpose": "Explain implemented authentication, authorization, secret handling, input validation, service isolation and secure-by-design practices. Identify gaps without inventing controls.",
+      "parent": "System Architecture"
+    },
+    {
+      "title": "Testing and Verification",
+      "purpose": "Document actual tests, testing tools, commands, API checks and verification evidence. Distinguish missing tests from completed tests.",
+      "parent": "Project Overview"
+    },
+    {
+      "title": "End-to-End Workflows",
+      "purpose": "Explain user journeys and request flows across frontend, services, database and messaging. Provide detailed Mermaid sequence diagrams for supported workflows.",
+      "parent": "System Architecture"
+    },
+    {
+      "title": "Implementation Status and Roadmap",
+      "purpose": "Summarize implemented, partial, missing and planned components. Explain gaps between intended architecture and repository evidence, without presenting plans as completed functionality.",
+      "parent": "Project Overview"
+    },
+    {
+      "title": "Current and Target Architecture",
+      "purpose": "Compare the currently implemented system with the planned final StudyPlanner architecture. Include two separate detailed Mermaid architecture diagrams. Explain existing components, missing functionality, future integrations, responsibilities, protocols and data flows. Mark all proposed elements clearly.",
+      "parent": "System Architecture"
+    },
+    {
+      "title": "Technical Terminology and Diagram Guide",
+      "purpose": "Create a beginner-friendly Ukrainian glossary of all technical terms, abbreviations, protocols, ports, Docker configuration parameters and diagram symbols used throughout the wiki. Explain concepts through actual StudyPlanner components. Provide examples of how to read deployment, sequence, component and ER diagrams.",
+      "parent": "Project Overview"
+    },
+    {
+      "title": "Development and Troubleshooting Guide",
+      "purpose": "Explain step-by-step how to prepare the environment, configure environment variables safely, build Docker images, start containers, verify PostgreSQL connectivity, check RabbitMQ messaging, inspect Prometheus metrics and view Grafana dashboards. Use actual repository configuration and commands. Describe common errors and verification methods without inventing successful results.",
+      "parent": "Project Overview"
+    }
+  ]
+}
