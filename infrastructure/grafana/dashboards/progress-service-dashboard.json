@@ -2,7 +2,7 @@
   "apiVersion": "dashboard.grafana.app/v2",
   "kind": "Dashboard",
   "metadata": {
-    "name": "adk4qtv"
+    "name": "studyplanner-progress"
   },
   "spec": {
     "annotations": [
@@ -48,7 +48,7 @@
                       "kind": "DataQuery",
                       "spec": {
                         "editorMode": "code",
-                        "expr": "up{job=\"study-plan-service\"}",
+                        "expr": "up{job=\"progress-service\"}",
                         "legendFormat": "__auto",
                         "range": true
                       },
@@ -65,7 +65,7 @@
           "description": "",
           "id": 3,
           "links": [],
-          "title": "Study Plan Service — Availability",
+          "title": "Progress Service — Availability",
           "vizConfig": {
             "group": "stat",
             "kind": "VizConfig",
@@ -132,7 +132,7 @@
                       "kind": "DataQuery",
                       "spec": {
                         "editorMode": "code",
-                        "expr": "sum(rate(http_requests_total{job=\"study-plan-service\"}[5m]))",
+                        "expr": "sum(rate(http_requests_total{job=\"progress-service\"}[5m]))",
                         "legendFormat": "__auto",
                         "range": true
                       },
@@ -149,7 +149,7 @@
           "description": "",
           "id": 4,
           "links": [],
-          "title": "Study Plan Service — HTTP Requests",
+          "title": "Progress Service — HTTP Requests",
           "vizConfig": {
             "group": "timeseries",
             "kind": "VizConfig",
@@ -250,7 +250,7 @@
                       "kind": "DataQuery",
                       "spec": {
                         "editorMode": "code",
-                        "expr": "sum(rate(http_request_duration_seconds_sum{job=\"study-plan-service\"}[5m]))\r\n/\r\nsum(rate(http_request_duration_seconds_count{job=\"study-plan-service\"}[5m]))",
+                        "expr": "sum(rate(http_request_duration_seconds_sum{job=\"progress-service\"}[5m]))\r\n/\r\nsum(rate(http_request_duration_seconds_count{job=\"progress-service\"}[5m]))",
                         "legendFormat": "__auto",
                         "range": true
                       },
@@ -267,7 +267,7 @@
           "description": "",
           "id": 5,
           "links": [],
-          "title": "Study Plan Service — Request Duration",
+          "title": "Progress Service — Request Duration",
           "vizConfig": {
             "group": "timeseries",
             "kind": "VizConfig",
@@ -422,7 +422,7 @@
       "timezone": "browser",
       "to": "now"
     },
-    "title": "StudyPlanner — Monitoring",
+    "title": "StudyPlanner — Progress Service",
     "variables": []
   }
 }
