@@ -1,21 +1,23 @@
 services:
 
-
   auth-service:
     build: ./auth-service
     ports:
       - "127.0.0.1:8000:8000"
     environment:
-      DB_HOST: postgres
-      DB_PORT: 5432
-      DB_NAME: ${POSTGRES_DB}
-      DB_USER: auth_user
-      DB_PASSWORD: ${AUTH_DB_PASSWORD}
+      POSTGRES_HOST: postgres
+      POSTGRES_PORT: 5432
+      POSTGRES_DB: ${POSTGRES_DB}
+      POSTGRES_USER: auth_user
+      POSTGRES_PASSWORD: ${AUTH_DB_PASSWORD}
+
+      RABBITMQ_HOST: rabbitmq
+      RABBITMQ_PORT: 5672
+      RABBITMQ_USER: ${RABBITMQ_USER}
+      RABBITMQ_PASSWORD: ${RABBITMQ_PASSWORD}
     depends_on:
       - postgres
-
-
-
+      - rabbitmq
 
   study-plan-service:
     build: ./study-plan-service
@@ -32,8 +34,6 @@ services:
       RABBITMQ_PORT: 5672
       RABBITMQ_USER: ${RABBITMQ_USER}
       RABBITMQ_PASSWORD: ${RABBITMQ_PASSWORD}
-
-
 
   progress-service:
     build: ./progress-service
@@ -54,8 +54,6 @@ services:
       - postgres
       - rabbitmq
 
-
-
   postgres:
     image: postgres:17
     environment:
@@ -69,7 +67,6 @@ services:
       - postgres_data:/var/lib/postgresql/data
       - ./infrastructure/postgres/init:/docker-entrypoint-initdb.d:ro
 
-
   rabbitmq:
     image: rabbitmq:4-management
     ports:
@@ -80,8 +77,6 @@ services:
     volumes:
       - rabbitmq_data:/var/lib/rabbitmq
 
-
-
   prometheus:
     image: prom/prometheus:latest
     ports:
@@ -89,8 +84,6 @@ services:
     volumes:
       - ./infrastructure/prometheus/prometheus.yml:/etc/prometheus/prometheus.yml:ro
       - prometheus_data:/prometheus
-
-
 
   grafana:
     image: grafana/grafana:latest
@@ -104,8 +97,6 @@ services:
       - ./infrastructure/grafana/provisioning/datasources:/etc/grafana/provisioning/datasources:ro
       - ./infrastructure/grafana/provisioning/dashboards:/etc/grafana/provisioning/dashboards:ro
       - ./infrastructure/grafana/dashboards:/var/lib/grafana/dashboards:ro
-
-
 
 volumes:
   postgres_data:
