@@ -1,5 +1,7 @@
-from fastapi import FastAPI
+
+from fastapi import FastAPI, HTTPException
 from database import get_connection
+from rabbitmq import get_rabbitmq_connection
 from prometheus_fastapi_instrumentator import Instrumentator
 
 app = FastAPI(title="Study Plan Service")
@@ -10,23 +12,46 @@ def home():
     return {"message": "Study Plan Service is running"}
 
 
+# Перевірка підключення до PostgreSQL
 @app.get("/db-check")
 def check_database():
     try:
         with get_connection() as connection:
             with connection.cursor() as cursor:
-                cursor.execute("SELECT current_user, current_database()")
+                cursor.execute(
+                    "SELECT current_user, current_database(), current_schema()"
+                )
                 result = cursor.fetchone()
 
         return {
             "status": "connected",
             "user": result[0],
-            "database": result[1]
+            "database": result[1],
+            "current_schema": result[2]
         }
 
     except Exception:
-        return {"status": "error"}
+        raise HTTPException(
+            status_code=503,
+            detail="Database connection error"
+        )
 
 
-# Збирання метрик FastAPI
+# Перевірка підключення до RabbitMQ
+@app.get("/rabbitmq-check")
+def check_rabbitmq():
+    try:
+        connection = get_rabbitmq_connection()
+        connection.close()
+
+        return {"status": "connected"}
+
+    except Exception:
+        raise HTTPException(
+            status_code=503,
+            detail="RabbitMQ connection error"
+        )
+
+
+# Збирання метрик FastAPI для Prometheus
 Instrumentator().instrument(app).expose(app)

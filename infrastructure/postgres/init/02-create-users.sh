@@ -43,4 +43,10 @@ GRANT USAGE, CREATE ON SCHEMA auth TO auth_user;
 GRANT USAGE, CREATE ON SCHEMA study_plan TO study_plan_user;
 GRANT USAGE, CREATE ON SCHEMA progress TO progress_user;
 
+-- Налаштування схем за замовчуванням
+
+ALTER ROLE auth_user SET search_path TO auth;
+ALTER ROLE study_plan_user SET search_path TO study_plan;
+ALTER ROLE progress_user SET search_path TO progress;
+
 SQL
