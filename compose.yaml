@@ -1,6 +1,7 @@
+
 services:
 
-
+  # Сервіс аутентифікації та авторизації
   auth-service:
     build: ./auth-service
     ports:
@@ -12,11 +13,17 @@ services:
       DB_USER: auth_user
       DB_PASSWORD: ${AUTH_DB_PASSWORD}
     depends_on:
-      - postgres
+      postgres:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8000/db-check', timeout=5)"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 20s
 
 
-
-
+  # Сервіс управління навчальним планом
   study-plan-service:
     build: ./study-plan-service
     ports:
@@ -32,9 +39,20 @@ services:
       RABBITMQ_PORT: 5672
       RABBITMQ_USER: ${RABBITMQ_USER}
       RABBITMQ_PASSWORD: ${RABBITMQ_PASSWORD}
+    depends_on:
+      postgres:
+        condition: service_healthy
+      rabbitmq:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8000/db-check', timeout=5); urllib.request.urlopen('http://localhost:8000/rabbitmq-check', timeout=5)"]
+      interval: 30s
+      timeout: 15s
+      retries: 3
+      start_period: 20s
 
 
-
+  # Сервіс відстеження прогресу
   progress-service:
     build: ./progress-service
     ports:
@@ -51,11 +69,19 @@ services:
       RABBITMQ_USER: ${RABBITMQ_USER}
       RABBITMQ_PASSWORD: ${RABBITMQ_PASSWORD}
     depends_on:
-      - postgres
-      - rabbitmq
+      postgres:
+        condition: service_healthy
+      rabbitmq:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8000/db-check', timeout=5); urllib.request.urlopen('http://localhost:8000/rabbitmq-check', timeout=5)"]
+      interval: 30s
+      timeout: 15s
+      retries: 3
+      start_period: 20s
 
 
-
+  # Сервер бази даних
   postgres:
     image: postgres:17
     environment:
@@ -68,10 +94,18 @@ services:
     volumes:
       - postgres_data:/var/lib/postgresql/data
       - ./infrastructure/postgres/init:/docker-entrypoint-initdb.d:ro
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -h 127.0.0.1 -U $$POSTGRES_USER -d $$POSTGRES_DB"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 20s
 
 
+  # Брокер повідомлень
   rabbitmq:
     image: rabbitmq:4-management
+    hostname: rabbitmq
     ports:
       - "127.0.0.1:15672:15672"
     environment:
@@ -79,9 +113,15 @@ services:
       RABBITMQ_DEFAULT_PASS: ${RABBITMQ_PASSWORD}
     volumes:
       - rabbitmq_data:/var/lib/rabbitmq
+    healthcheck:
+      test: ["CMD", "rabbitmq-diagnostics", "-q", "check_port_connectivity"]
+      interval: 10s
+      timeout: 10s
+      retries: 5
+      start_period: 30s
 
 
-
+  # Збирання метрик
   prometheus:
     image: prom/prometheus:latest
     ports:
@@ -91,7 +131,7 @@ services:
       - prometheus_data:/prometheus
 
 
-
+  # Візуалізація метрик
   grafana:
     image: grafana/grafana:latest
     ports:
@@ -106,7 +146,7 @@ services:
       - ./infrastructure/grafana/dashboards:/var/lib/grafana/dashboards:ro
 
 
-
+# Постійні сховища даних
 volumes:
   postgres_data:
   rabbitmq_data:
