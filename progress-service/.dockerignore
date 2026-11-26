@@ -1,0 +1,35 @@
+
+# Кеш та скомпільовані файли Python
+__pycache__/
+**/__pycache__/
+*.pyc
+*.pyo
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+
+# Віртуальні середовища Python
+.venv/
+venv/
+env/
+
+# Конфіденційні параметри
+.env
+.env.*
+
+# Файли системи контролю версій
+.git/
+.gitignore
+
+# Налаштування середовища розробки
+.vscode/
+.idea/
+
+# Тимчасові файли та журнали
+*.log
+*.tmp
+*.bak
+
+# Системні файли
+.DS_Store
+Thumbs.db

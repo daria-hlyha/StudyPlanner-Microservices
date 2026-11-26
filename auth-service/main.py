@@ -3,11 +3,10 @@ from fastapi import FastAPI, Depends, HTTPException
 from sqlalchemy.orm import Session
 from sqlalchemy import text
 from database import get_db
+from rabbitmq import get_rabbitmq_connection
 from prometheus_fastapi_instrumentator import Instrumentator
 
 app = FastAPI(title="Auth Service")
-
-Instrumentator().instrument(app).expose(app)
 
 
 @app.get("/")
@@ -35,3 +34,23 @@ def db_check(db: Session = Depends(get_db)):
             status_code=503,
             detail="Database connection error"
         )
+
+
+# Перевірка підключення до RabbitMQ
+@app.get("/rabbitmq-check")
+def check_rabbitmq():
+    try:
+        connection = get_rabbitmq_connection()
+        connection.close()
+
+        return {"status": "connected"}
+
+    except Exception:
+        raise HTTPException(
+            status_code=503,
+            detail="RabbitMQ connection error"
+        )
+
+
+# Збирання метрик FastAPI для Prometheus
+Instrumentator().instrument(app).expose(app)

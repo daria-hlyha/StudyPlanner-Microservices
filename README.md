@@ -1,4 +1,3 @@
-
 # StudyPlanner Microservices
 
 ## 1. Опис проєкту
@@ -29,7 +28,7 @@ StudyPlanner — вебсистема планування навчання та
 | Grafana | Візуалізація метрик та моніторинг |
 | Docker Compose | Конфігурування та розгортання інфраструктури |
 
-На поточному етапі реалізовано програмну основу мікросервісів та інфраструктуру системи. Повна бізнес-логіка та вебінтерфейс належать до наступних етапів розробки.
+На поточному етапі реалізовано та перевірено програмну основу трьох мікросервісів та інфраструктуру системи для початку практичної роботи № 3. Повна бізнес-логіка та вебінтерфейс належать до наступних етапів розробки.
 
 ## 3. Технологічний стек
 
@@ -39,7 +38,7 @@ StudyPlanner — вебсистема планування навчання та
 - FastAPI;
 - Uvicorn;
 - SQLAlchemy;
-- psycopg;
+- драйвери PostgreSQL (зокрема psycopg2-binary для Auth Service);
 - pika;
 - prometheus-fastapi-instrumentator;
 - REST API;
@@ -69,11 +68,15 @@ StudyPlanner — вебсистема планування навчання та
 ```text
 StudyPlanner-Microservices/
 ├── auth-service/
+│   ├── .dockerignore
 │   ├── database.py
 │   ├── Dockerfile
 │   ├── main.py
-│   └── requirements.txt
+│   ├── rabbitmq.py
+│   ├── requirements.txt
+│   └── test_rabbitmq.py
 ├── study-plan-service/
+│   ├── .dockerignore
 │   ├── database.py
 │   ├── Dockerfile
 │   ├── main.py
@@ -81,6 +84,7 @@ StudyPlanner-Microservices/
 │   ├── requirements.txt
 │   └── test_rabbitmq.py
 ├── progress-service/
+│   ├── .dockerignore
 │   ├── database.py
 │   ├── Dockerfile
 │   ├── main.py
@@ -88,7 +92,9 @@ StudyPlanner-Microservices/
 │   ├── requirements.txt
 │   └── test_rabbitmq.py
 ├── frontend/
+│   └── .gitkeep
 ├── infrastructure/
+│   ├── .gitkeep
 │   ├── postgres/
 │   │   └── init/
 │   │       ├── 01-create-schemas.sql
@@ -144,6 +150,13 @@ git clone https://github.com/daria-hlyha/StudyPlanner-Microservices.git
 
 ```cmd
 cd StudyPlanner-Microservices
+```
+
+Після публікації стабільної гілки для початку ПЗ № 3:
+
+```cmd
+git fetch origin
+git switch base_for_pz3
 ```
 
 Відкрити проєкт у Visual Studio Code:
@@ -266,7 +279,7 @@ PostgreSQL та AMQP-порт RabbitMQ не публікуються на ком
 |---|---|---|---|---|
 | GET | / | Так | Так | Так |
 | GET | /db-check | Так | Так | Так |
-| GET | /rabbitmq-check | Ні | Так | Так |
+| GET | /rabbitmq-check | Так | Так | Так |
 | GET | /metrics | Так | Так | Так |
 | GET | /docs | Так | Так | Так |
 | GET | /redoc | Так | Так | Так |
@@ -384,7 +397,7 @@ docker compose restart auth-service study-plan-service progress-service
 
 RabbitMQ призначений для асинхронного обміну повідомленнями між мікросервісами.
 
-Для Study Plan Service та Progress Service реалізовано програмні модулі підключення до брокера повідомлень із використанням бібліотеки pika.
+Для всіх трьох мікросервісів реалізовано однакові модулі `rabbitmq.py` із використанням бібліотеки pika. Облікові дані отримуються зі змінних середовища; налаштовано до трьох спроб підключення, затримку між спробами та таймаути.
 
 ### 12.1. Перевірка доступності RabbitMQ
 
@@ -395,6 +408,7 @@ docker compose exec rabbitmq rabbitmq-diagnostics -q ping
 Перевірка підключення мікросервісів:
 
 ```cmd
+curl http://localhost:8000/rabbitmq-check
 curl http://localhost:8001/rabbitmq-check
 curl http://localhost:8002/rabbitmq-check
 ```
@@ -407,6 +421,20 @@ curl http://localhost:8002/rabbitmq-check
 
 ### 12.2. Тестування повідомлень
 
+Тестування Auth Service:
+
+```cmd
+docker compose exec auth-service python test_rabbitmq.py
+```
+
+Очікуваний результат:
+
+```text
+Sent: Auth Service test message
+Received: Auth Service test message
+RabbitMQ test: PASSED
+```
+
 Тестування Study Plan Service:
 
 ```cmd
@@ -418,6 +446,7 @@ docker compose exec study-plan-service python test_rabbitmq.py
 ```text
 Sent: Study Plan Service test message
 Received: Study Plan Service test message
+RabbitMQ test: PASSED
 ```
 
 Тестування Progress Service:
@@ -431,22 +460,24 @@ docker compose exec progress-service python test_rabbitmq.py
 ```text
 Sent: Progress Service test message
 Received: Progress Service test message
+RabbitMQ test: PASSED
 ```
 
 ### 12.3. Тестові черги
 
 | Черга | Мікросервіс | Тип |
 |---|---|---|
-| study_plan_test | Study Plan Service | Classic, Durable |
-| progress_test | Progress Service | Classic, Durable |
+| auth_test | Auth Service | Durable |
+| study_plan_test | Study Plan Service | Durable |
+| progress_test | Progress Service | Durable |
 
 Перевірка стану черг:
 
 ```cmd
-docker compose exec rabbitmq rabbitmqctl list_queues name durable messages_ready messages_unacknowledged
+docker compose exec rabbitmq rabbitmqctl list_queues name durable messages messages_ready messages_unacknowledged consumers
 ```
 
-Тестові скрипти перевіряють надсилання та отримання повідомлень через власні тестові черги.
+Тестові скрипти перевіряють публікацію з підтвердженням брокера, отримання, відповідність повідомлень та підтвердження отримання через власні тестові черги. У разі помилки скрипт завершується з ненульовим кодом. Перед послідовним запуском тестів перевірте, що тестові черги порожні та не мають інших споживачів. Виконуйте команди запуску окремо.
 
 Повноцінний обмін бізнес-подіями між мікросервісами належить до наступних етапів розробки.
 
@@ -467,10 +498,10 @@ hostname: rabbitmq
 docker compose up -d --force-recreate rabbitmq
 ```
 
-Після завершення запуску брокера виконується перевірка:
+Ця команда перестворює контейнер брокера та тимчасово перериває підключення. Для звичайної перевірки запускати її не потрібно. Після завершення запуску брокера виконується перевірка:
 
 ```cmd
-docker compose exec rabbitmq rabbitmqctl list_queues name durable messages_ready messages_unacknowledged
+docker compose exec rabbitmq rabbitmqctl list_queues name durable messages messages_ready messages_unacknowledged consumers
 ```
 
 Під час тестування підтверджено збереження черг `study_plan_test` та `progress_test` після перестворення контейнера RabbitMQ.
@@ -589,15 +620,13 @@ curl http://localhost:3000/api/health
 |---|---|---|
 | PostgreSQL | pg_isready | 10 секунд |
 | RabbitMQ | rabbitmq-diagnostics check_port_connectivity | 10 секунд |
-| Auth Service | /db-check | 30 секунд |
+| Auth Service | /db-check, /rabbitmq-check | 30 секунд |
 | Study Plan Service | /db-check, /rabbitmq-check | 30 секунд |
 | Progress Service | /db-check, /rabbitmq-check | 30 секунд |
 
 Для запуску мікросервісів використовується параметр `depends_on` з умовою `service_healthy`.
 
-Auth Service очікує готовності PostgreSQL.
-
-Study Plan Service та Progress Service очікують готовності PostgreSQL і RabbitMQ.
+Усі три мікросервіси очікують готовності PostgreSQL і RabbitMQ. HTTP-запити Healthcheck мають власні таймаути; повторні спроби з’єднання з RabbitMQ можуть тривати довше за таймаут HTTP-запиту.
 
 Перевірка стану контейнерів:
 
@@ -636,6 +665,7 @@ Docker Volume забезпечують збереження даних під ч
 - обмеження адміністративних привілеїв;
 - зберігання паролів у змінних середовища;
 - виключення файлу `.env` із Git;
+- використання `.dockerignore` у кожному мікросервісі для виключення локальних конфіденційних файлів, кешу та віртуальних середовищ із контексту складання;
 - використання внутрішньої мережі Docker;
 - відсутність публікації портів PostgreSQL та AMQP;
 - прив'язка опублікованих портів до локальної адреси 127.0.0.1;
@@ -703,6 +733,28 @@ docker compose up -d
 | integration/studyplanner | Інтеграція компонентів |
 | fix/infrastructure-pz2 | Виправлення та тестування інфраструктури ПЗ № 2 |
 
+### 18.1. Порядок командної розробки ПЗ № 3
+
+| Гілка | Призначення |
+|---|---|
+| `fix/prepare-pz3` | Підготовчі виправлення інфраструктури |
+| `base_for_pz3` | Запланована стабільна основа для ПЗ № 3 після публікації перевірених змін |
+| `feature/pz3-auth-service` | Запланована гілка розробки Auth Service |
+| `feature/pz3-study-plan-service` | Запланована гілка розробки Study Plan Service |
+| `feature/pz3-progress-service` | Запланована гілка розробки Progress Service |
+| `integration/pz3` | Запланована гілка інтеграції результатів ПЗ № 3 |
+
+Після створення та публікації `base_for_pz3` кожна учасниця створює власну робочу гілку від цієї основи. Наприклад, для Study Plan Service:
+
+```cmd
+git fetch origin
+git switch base_for_pz3
+git pull --ff-only origin base_for_pz3
+git switch -c feature/pz3-study-plan-service
+```
+
+Зміни предметної функціональності вносяться в окремих робочих гілках, а результати об'єднуються через Pull Request після перевірки. Базову гілку не використовують для повсякденного внесення змін.
+
 ## 19. Поточний стан проєкту
 
 ### Реалізовано та перевірено
@@ -715,7 +767,9 @@ docker compose up -d
 - створення окремих ролей PostgreSQL;
 - розмежування прав доступу до схем;
 - налаштування search_path;
-- підключення Study Plan Service та Progress Service до RabbitMQ;
+- підключення всіх трьох мікросервісів до RabbitMQ;
+- уніфікацію Dockerfile, файлів `.dockerignore` та модулів підключення до RabbitMQ;
+- оновлення тестових скриптів RabbitMQ для трьох мікросервісів;
 - тестове надсилання та отримання повідомлень;
 - автоматичні перевірки працездатності п'яти контейнерів;
 - збирання метрик Prometheus із чотирьох джерел;
@@ -724,7 +778,7 @@ docker compose up -d
 - постійне зберігання даних у Docker Volume;
 - діагностичні маршрути REST API;
 - налаштування постійного імені вузла RabbitMQ;
-- збереження тестових черг після перестворення контейнера RabbitMQ;
+- збереження черг `study_plan_test` та `progress_test` після перестворення контейнера RabbitMQ (попередня перевірка);
 - автоматичну документацію Swagger UI.
 
 
@@ -747,3 +801,23 @@ docker compose up -d
 - розгортання системи за допомогою Kubernetes.
 
 Поточна версія проєкту формує інфраструктурну та програмну основу для подальшої реалізації функціональності мікросервісної системи StudyPlanner.
+
+## 20. Результати перевірки основи для ПЗ № 3
+
+Дата тестування: 26.11.2026.
+
+| Перевірка | Фактичний результат |
+|---|---|
+| Складання Docker-образів | 3 із 3 успішно |
+| Запуск контейнерів | 7 із 7 запущено |
+| Healthcheck | 5 із 5 healthy |
+| PostgreSQL | 3 із 3 підключення з відповідними ролями та схемами |
+| RabbitMQ — підключення | 3 із 3 connected |
+| RabbitMQ — тестування повідомлень | 3 із 3 PASSED |
+| Маршрути /metrics | HTTP 200 для всіх трьох мікросервісів |
+| Prometheus | 4 із 4 джерел UP, up = 1 |
+| Grafana | 3 інформаційні панелі, 9 показаних панелей із даними |
+
+Перевірки підтверджують працездатність базової інфраструктури. Вони не є навантажувальними тестами, аудитом усіх прав доступу чи перевіркою повної предметної функціональності. Перевірка збереження нової черги `auth_test` після перестворення брокера окремо не виконувалася.
+
+Наступний етап — збереження перевірених змін у Git та створення стабільної гілки `base_for_pz3`.

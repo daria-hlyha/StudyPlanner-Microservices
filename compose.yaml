@@ -12,15 +12,23 @@ services:
       DB_NAME: ${POSTGRES_DB}
       DB_USER: auth_user
       DB_PASSWORD: ${AUTH_DB_PASSWORD}
+
+      RABBITMQ_HOST: rabbitmq
+      RABBITMQ_PORT: 5672
+      RABBITMQ_USER: ${RABBITMQ_USER}
+      RABBITMQ_PASSWORD: ${RABBITMQ_PASSWORD}
     depends_on:
       postgres:
         condition: service_healthy
+      rabbitmq:
+        condition: service_healthy
     healthcheck:
-      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8000/db-check', timeout=5)"]
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8000/db-check', timeout=5); urllib.request.urlopen('http://localhost:8000/rabbitmq-check', timeout=5)"]
       interval: 30s
-      timeout: 10s
+      timeout: 15s
       retries: 3
       start_period: 20s
+
 
 
   # Сервіс управління навчальним планом
