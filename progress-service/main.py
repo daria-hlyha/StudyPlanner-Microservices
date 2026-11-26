@@ -1,10 +1,34 @@
 
+import logging
+from contextlib import asynccontextmanager
+
 from fastapi import FastAPI, HTTPException
 from database import get_connection
 from rabbitmq import get_rabbitmq_connection
 from prometheus_fastapi_instrumentator import Instrumentator
 
-app = FastAPI(title="Progress Service")
+from db_init import init_db
+from progress_api import router as progress_router
+
+
+logging.basicConfig(level=logging.INFO)
+
+
+# Створення предметних таблиць у схемі progress під час запуску
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    init_db()
+    yield
+
+
+app = FastAPI(
+    title="Progress Service",
+    description=(
+        "Сервіс відстеження прогресу (d): відстеження завдань і модулів, "
+        "статуси завдань, розрахунок прогресу планів і досягнення цілей."
+    ),
+    lifespan=lifespan,
+)
 
 
 @app.get("/")
@@ -51,6 +75,10 @@ def check_rabbitmq():
             status_code=503,
             detail="RabbitMQ connection error"
         )
+
+
+# Предметна функціональність сервісу відстеження прогресу
+app.include_router(progress_router)
 
 
 # Збирання метрик FastAPI для Prometheus
