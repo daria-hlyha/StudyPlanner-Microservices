@@ -1,27 +1,43 @@
 
-import os
+"""
+Підключення до брокера повідомлень Study Plan Service.
+
+Модуль забезпечує створення підключень до RabbitMQ
+на основі централізованої конфігурації мікросервісу.
+"""
+
 import pika
 
+from config import get_settings
 
-# Створення підключення до RabbitMQ
-def get_rabbitmq_connection():
+
+# ==========================================================
+# 1. СТВОРЕННЯ ПІДКЛЮЧЕННЯ ДО RABBITMQ
+# ==========================================================
+
+def get_rabbitmq_connection() -> pika.BlockingConnection:
+
+    """Створення підключення до брокера повідомлень RabbitMQ."""
+
+    # Отримання централізованої конфігурації
+    settings = get_settings()
 
     # Облікові дані для підключення
     credentials = pika.PlainCredentials(
-        os.environ["RABBITMQ_USER"],
-        os.environ["RABBITMQ_PASSWORD"]
+        username=settings.rabbitmq_user,
+        password=settings.rabbitmq_password.get_secret_value()
     )
 
     # Параметри підключення до брокера повідомлень
     parameters = pika.ConnectionParameters(
-        host=os.getenv("RABBITMQ_HOST", "rabbitmq"),
-        port=int(os.getenv("RABBITMQ_PORT", "5672")),
+        host=settings.rabbitmq_host,
+        port=settings.rabbitmq_port,
         credentials=credentials,
-        connection_attempts=3,
-        retry_delay=2,
-        socket_timeout=5,
-        stack_timeout=10,
-        blocked_connection_timeout=10
+        connection_attempts=settings.rabbitmq_connection_attempts,
+        retry_delay=settings.rabbitmq_retry_delay,
+        socket_timeout=settings.rabbitmq_socket_timeout,
+        stack_timeout=settings.rabbitmq_stack_timeout,
+        blocked_connection_timeout=settings.rabbitmq_blocked_connection_timeout
     )
 
     # Встановлення з'єднання

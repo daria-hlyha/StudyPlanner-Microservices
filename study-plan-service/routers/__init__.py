@@ -1,0 +1,1 @@
+"""Маршрути REST API Study Plan Service."""

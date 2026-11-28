@@ -1,5 +1,16 @@
-fastapi
-uvicorn
-psycopg[binary]
-pika
-prometheus-fastapi-instrumentator
+# Вебфреймворк та ASGI-сервер
+fastapi==0.165.0
+uvicorn==0.54.0
+
+# Підключення до PostgreSQL
+psycopg[binary]==3.3.9
+
+# Підключення до RabbitMQ
+pika==1.5.0
+
+# Валідація даних та конфігурація
+pydantic==2.14.4
+pydantic-settings==2.16.3
+
+# Моніторинг мікросервісу
+prometheus-fastapi-instrumentator==8.1.0
